@@ -1,65 +1,121 @@
-import Image from "next/image";
+'use client';
+
+import { useRef, useState } from "react";
+import { TaskItem } from "./components/TaskItem";
+import styles from "./page.module.css";
+
+import { Task } from "./models/Task";
 
 export default function Home() {
+
+  const newTaskNameRef = useRef<HTMLInputElement>(null);
+
+  const [tasks, setTasks] = useState<Task[]>(() => {
+    // useState initializers run during SSR where localStorage is not available
+    if (typeof window === 'undefined') return [];
+    
+    const tasksJson = localStorage.getItem("tasks");
+    const rawTaskItems = tasksJson ? JSON.parse(tasksJson) : [];
+    return rawTaskItems.map((item: any) => new Task(item.name, new Date(item.startTime), item.endTime ? new Date(item.endTime) : undefined));
+  });
+
+  const setActiveTask = (taskName: string, nextIsActive: boolean) => {
+    setTasks((prevTasks) => {
+      const currentActiveTask = prevTasks.find((x) => x.isActive());
+      
+      if(currentActiveTask?.name === taskName && nextIsActive) {
+        // Task is already active, do nothing
+        return prevTasks;
+      }
+
+      const nextTasks = prevTasks.map((task) => {
+        if(currentActiveTask?.name === task.name && task.isActive()) {
+          // End currently active task
+          return new Task(task.name, task.startTime, new Date());
+        }
+
+        return task;
+      });
+
+      if(nextIsActive) {
+        // Start new task
+        nextTasks.push(new Task(taskName, new Date()));
+      }
+
+      // persist tasks to local storage
+      localStorage.setItem("tasks", JSON.stringify(nextTasks));
+      return nextTasks;
+    });
+  };
+
+  const removeTask = (taskName: string) => {
+    setTasks((prevTasks) => {
+      const nextTasks = prevTasks.filter((task) => task.name !== taskName);
+      localStorage.setItem("tasks", JSON.stringify(nextTasks));
+      return nextTasks;
+    });
+  }
+
+  const startButtonClick = () => {
+    if(!newTaskNameRef.current || newTaskNameRef.current.value.trim() === "") {
+      return;
+    }
+
+    setActiveTask(newTaskNameRef.current?.value ?? "", true);
+    if(newTaskNameRef.current) {
+      newTaskNameRef.current.value = "";
+    }
+  };
+
+  // we group tasks by name
+  // for each group, we calculate the duration of the finished tasks
+  // the elapsed time of the active task is kept up to date inside the TaskItem component
+  const tasksByName = Object.groupBy(tasks, (task) => task.name);
+  const taskElements = Object.entries(tasksByName)
+    .map(([name, tasks]) => {
+      const activeTask = (tasks ?? []).find((task) => task.isActive());
+      const finishedDuration = (tasks ?? []).reduce((sum, task) => {
+        if (task.isActive()) return sum;
+        const duration = task.getDurationSeconds();
+        return sum + (duration !== null ? duration : 0);
+      }, 0);
+      const isActive = activeTask !== undefined;
+      const activeStartDate = activeTask?.startTime ?? null;
+      return { name, isActive, finishedDuration, activeStartDate };
+    })
+    .sort((a, b) => {
+      if (a.isActive !== b.isActive) return a.isActive ? -1 : 1;
+      return a.name.localeCompare(b.name);
+    })
+    .map(({ name, isActive, finishedDuration, activeStartDate }) => (
+      <TaskItem
+        key={name}
+        taskName={name}
+        finishedDurationSeconds={finishedDuration}
+        activeStartDate={activeStartDate}
+        onRowClick={() => setActiveTask(name, !isActive)}
+        onClearClick={() => removeTask(name)}
+      />
+    ));
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <main className={styles.home}>
+      <h1>time-buddy</h1>
+
+      <div className={styles.taskInputRow}>
+        <input
+          ref={newTaskNameRef}
+          type="text"
+          placeholder="Create a task"
+          onKeyDown={(e) => e.key === "Enter" && startButtonClick()}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+        <button onClick={startButtonClick}>▶</button>
+      </div>
+
+      <div className={styles.taskList}>
+        {taskElements}
+      </div>
+
+    </main>
   );
 }

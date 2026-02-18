@@ -1,0 +1,63 @@
+.home {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.taskInputRow {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  margin: 10px 0 5px;
+  width: min(90vw, 560px);
+}
+
+.taskInputRow input {
+  flex: 1;
+  padding: 10px 15px;
+  border-radius: 50px 0 0 50px;
+  border: 1px solid #888888;
+  border-right: none;
+  background: #333333;
+  color: #fff;
+  font-size: 1rem;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.taskInputRow input::placeholder {
+  color: #888888;
+}
+
+.taskInputRow input:focus {
+  border-color: #aaaaaa;
+}
+
+.taskInputRow button {
+  padding: 10px 16px;
+  border-radius: 0 50px 50px 0;
+  border: 1px solid #888888;
+  background: #444444;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  box-sizing: border-box;
+  line-height: 1;
+}
+
+.taskInputRow button:hover {
+  background: #555555;
+  border-color: #aaaaaa;
+}
+
+.taskInputRow button:active {
+  background: #666666;
+}
+
+.taskList {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
