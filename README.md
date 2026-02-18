@@ -7,3 +7,4 @@ Potential TODOs in no particular order
 - animations
 - opening up a row shows the "sessions" (+ the abilitiy to delete / edit the sessions)
 - make it prettier
+- link to the git repo
