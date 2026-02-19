@@ -1,17 +1,18 @@
 'use client';
 
 import { useEffect, useState } from "react";
+import { Trash2, Play, Pause } from "lucide-react";
 import styles from "./TaskItem.module.css";
 
 export type TaskItemProps = {
   taskName: string;
   finishedDurationSeconds: number | null;
   activeStartDate: Date | null;
-  onRowClick: () => void;
+  onStartClick: () => void;
   onClearClick: () => void;
 };
 
-export function TaskItem({ taskName, finishedDurationSeconds, activeStartDate, onRowClick, onClearClick }: TaskItemProps) {
+export function TaskItem({ taskName, finishedDurationSeconds, activeStartDate, onStartClick, onClearClick }: TaskItemProps) {
   const [elapsed, setElapsed] = useState(0);
 
   useEffect(() => {
@@ -35,16 +36,14 @@ export function TaskItem({ taskName, finishedDurationSeconds, activeStartDate, o
     durationDisplay = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
   }
 
-  const playPauseSymbol = activeStartDate ? "⏸" : "▶";
-  
   return (
-    <div className={`${styles.item} ${activeStartDate ? styles.activeItem : ""}`} onClick={onRowClick}>
+    <div className={`${styles.item} ${activeStartDate ? styles.activeItem : ""}`}>
       <div className={styles.leftSide}>
-        <div className={styles.playPause}>{playPauseSymbol}</div>
+        <div className={styles.playPause} onClick={onStartClick}>{activeStartDate ? <Pause size={16} /> : <Play size={16} />}</div>
         <div className={styles.title}>{taskName}</div>
       </div>
       <div className={styles.rightSide}>
-        <div className={styles.clear} onClick={(e) => { e.stopPropagation(); onClearClick(); }}>x</div>
+        <div className={styles.clear} onClick={onClearClick}><Trash2 size={16} /></div>
         <div className={styles.separator}>|</div>
         <div className={styles.duration}>{durationDisplay}</div>
       </div>

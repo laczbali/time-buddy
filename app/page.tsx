@@ -1,9 +1,9 @@
 'use client';
 
 import { useRef, useState } from "react";
+import { Play } from "lucide-react";
 import { TaskItem } from "./components/TaskItem";
 import styles from "./page.module.css";
-
 import { Task } from "./models/Task";
 
 export default function Home() {
@@ -42,8 +42,7 @@ export default function Home() {
         nextTasks.push(new Task(taskName, new Date()));
       }
 
-      // persist tasks to local storage
-      localStorage.setItem("tasks", JSON.stringify(nextTasks));
+      taskStateChangePostActions(taskName, nextIsActive, nextTasks);
       return nextTasks;
     });
   };
@@ -51,7 +50,7 @@ export default function Home() {
   const removeTask = (taskName: string) => {
     setTasks((prevTasks) => {
       const nextTasks = prevTasks.filter((task) => task.name !== taskName);
-      localStorage.setItem("tasks", JSON.stringify(nextTasks));
+      taskStateChangePostActions(taskName, false, nextTasks);
       return nextTasks;
     });
   }
@@ -64,6 +63,16 @@ export default function Home() {
     setActiveTask(newTaskNameRef.current?.value ?? "", true);
     if(newTaskNameRef.current) {
       newTaskNameRef.current.value = "";
+    }
+  };
+
+  const taskStateChangePostActions = (taskName: string, nextIsActive: boolean, nextTasks: Task[]) => {
+    localStorage.setItem("tasks", JSON.stringify(nextTasks));
+
+    if(nextIsActive) {
+      document.title = `${taskName} | time-buddy`;
+    } else {
+      document.title = "time-buddy";
     }
   };
 
@@ -93,7 +102,7 @@ export default function Home() {
         taskName={name}
         finishedDurationSeconds={finishedDuration}
         activeStartDate={activeStartDate}
-        onRowClick={() => setActiveTask(name, !isActive)}
+        onStartClick={() => setActiveTask(name, !isActive)}
         onClearClick={() => removeTask(name)}
       />
     ));
@@ -109,7 +118,7 @@ export default function Home() {
           placeholder="Create a task"
           onKeyDown={(e) => e.key === "Enter" && startButtonClick()}
         />
-        <button onClick={startButtonClick}>▶</button>
+        <button onClick={startButtonClick}><Play size={16} /></button>
       </div>
 
       <div className={styles.taskList}>
