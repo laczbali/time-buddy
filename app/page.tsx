@@ -1,7 +1,7 @@
 'use client';
 
-import { useRef, useState } from "react";
-import { Play } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Play, ArrowUpDown } from "lucide-react";
 import { TaskItem } from "./components/TaskItem";
 import styles from "./page.module.css";
 import { Task } from "./models/Task";
@@ -9,15 +9,15 @@ import { Task } from "./models/Task";
 export default function Home() {
 
   const newTaskNameRef = useRef<HTMLInputElement>(null);
+  const [sortOrder, setSortOrder] = useState<"name" | "last-used">("last-used");
 
-  const [tasks, setTasks] = useState<Task[]>(() => {
-    // useState initializers run during SSR where localStorage is not available
-    if (typeof window === 'undefined') return [];
-    
+  const [tasks, setTasks] = useState<Task[]>([]);
+
+  useEffect(() => {
     const tasksJson = localStorage.getItem("tasks");
     const rawTaskItems = tasksJson ? JSON.parse(tasksJson) : [];
-    return rawTaskItems.map((item: any) => new Task(item.name, new Date(item.startTime), item.endTime ? new Date(item.endTime) : undefined));
-  });
+    setTasks(rawTaskItems.map((item: any) => new Task(item.name, new Date(item.startTime), item.endTime ? new Date(item.endTime) : undefined)));
+  }, []);
 
   const setActiveTask = (taskName: string, nextIsActive: boolean) => {
     setTasks((prevTasks) => {
@@ -89,14 +89,21 @@ export default function Home() {
         return sum + (duration !== null ? duration : 0);
       }, 0);
       const isActive = activeTask !== undefined;
+      const latestEndDate = (tasks ?? []).reduce((latest, task) => {
+        const endTime = task.endTime ?? new Date();
+        return endTime > latest ? endTime : latest;
+      }, new Date(0));
       const activeStartDate = activeTask?.startTime ?? null;
-      return { name, isActive, finishedDuration, activeStartDate };
+      return { name, isActive, finishedDuration, latestEndDate, activeStartDate };
     })
     .sort((a, b) => {
       if (a.isActive !== b.isActive) return a.isActive ? -1 : 1;
+      if (sortOrder === "last-used") {
+        return b.latestEndDate.getTime() - a.latestEndDate.getTime();
+      }
       return a.name.localeCompare(b.name);
     })
-    .map(({ name, isActive, finishedDuration, activeStartDate }) => (
+    .map(({ name, isActive, finishedDuration, latestEndDate, activeStartDate }) => (
       <TaskItem
         key={name}
         taskName={name}
@@ -119,6 +126,14 @@ export default function Home() {
           onKeyDown={(e) => e.key === "Enter" && startButtonClick()}
         />
         <button onClick={startButtonClick}><Play size={16} /></button>
+      </div>
+
+      <div className={styles.sortRow}>
+        <ArrowUpDown size={14} />
+        <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value as "name" | "last-used")}>
+          <option value="name">Sort by name</option>
+          <option value="last-used">Sort by last used</option>
+        </select>
       </div>
 
       <div className={styles.taskList}>
