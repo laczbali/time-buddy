@@ -42,7 +42,7 @@ export default function Home() {
         nextTasks.push(new Task(taskName, new Date()));
       }
 
-      taskStateChangePostActions(taskName, nextIsActive, nextTasks);
+      taskStateChangePostActions(nextTasks);
       return nextTasks;
     });
   };
@@ -50,10 +50,27 @@ export default function Home() {
   const removeTask = (taskName: string) => {
     setTasks((prevTasks) => {
       const nextTasks = prevTasks.filter((task) => task.name !== taskName);
-      taskStateChangePostActions(taskName, false, nextTasks);
+      taskStateChangePostActions(nextTasks);
       return nextTasks;
     });
-  }
+  };
+
+  const renameTask = (oldName: string, newName: string) => {
+    if(oldName === newName) {
+      return;
+    }
+
+    setTasks((prevTasks) => {
+      const nextTasks = prevTasks.map((task) => {
+        if(task.name === oldName) {
+          return new Task(newName, task.startTime, task.endTime);
+        }
+        return task;
+      });
+      taskStateChangePostActions(nextTasks);
+      return nextTasks;
+    });
+  };
 
   const startButtonClick = () => {
     if(!newTaskNameRef.current || newTaskNameRef.current.value.trim() === "") {
@@ -66,11 +83,13 @@ export default function Home() {
     }
   };
 
-  const taskStateChangePostActions = (taskName: string, nextIsActive: boolean, nextTasks: Task[]) => {
+  const taskStateChangePostActions = (nextTasks: Task[]) => {
     localStorage.setItem("tasks", JSON.stringify(nextTasks));
 
-    if(nextIsActive) {
-      document.title = `${taskName} | time-buddy`;
+    const activeTask = nextTasks.find((x) => x.isActive());
+
+    if(activeTask) {
+      document.title = `${activeTask.name} | time-buddy`;
     } else {
       document.title = "time-buddy";
     }
@@ -111,6 +130,7 @@ export default function Home() {
         activeStartDate={activeStartDate}
         onStartClick={() => setActiveTask(name, !isActive)}
         onClearClick={() => removeTask(name)}
+        onRename={(oldName, newName) => renameTask(oldName, newName)}
       />
     ));
 

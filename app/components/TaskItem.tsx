@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { Trash2, Play, Pause } from "lucide-react";
+import { Trash2, Play, Pause, Pencil } from "lucide-react";
 import styles from "./TaskItem.module.css";
 
 export type TaskItemProps = {
@@ -10,9 +10,10 @@ export type TaskItemProps = {
   activeStartDate: Date | null;
   onStartClick: () => void;
   onClearClick: () => void;
+  onRename: (oldName: string, newName: string) => void;
 };
 
-export function TaskItem({ taskName, finishedDurationSeconds, activeStartDate, onStartClick, onClearClick }: TaskItemProps) {
+export function TaskItem({ taskName, finishedDurationSeconds, activeStartDate, onStartClick, onClearClick, onRename }: TaskItemProps) {
   const [elapsed, setElapsed] = useState(0);
 
   useEffect(() => {
@@ -38,11 +39,12 @@ export function TaskItem({ taskName, finishedDurationSeconds, activeStartDate, o
 
   return (
     <div className={`${styles.item} ${activeStartDate ? styles.activeItem : ""}`}>
-      <div className={styles.leftSide}>
-        <div className={styles.playPause} onClick={onStartClick}>{activeStartDate ? <Pause size={16} /> : <Play size={16} />}</div>
+      <div className={styles.leftSide} onClick={onStartClick}>
+        <div className={styles.playPause}>{activeStartDate ? <Pause size={16} /> : <Play size={16} />}</div>
         <div className={styles.title}>{taskName}</div>
       </div>
       <div className={styles.rightSide}>
+        <div className={styles.rename} onClick={() => onRename(taskName, prompt("Enter new task name", taskName) ?? taskName)}><Pencil size={16} /></div>
         <div className={styles.clear} onClick={onClearClick}><Trash2 size={16} /></div>
         <div className={styles.separator}>|</div>
         <div className={styles.duration}>{durationDisplay}</div>
