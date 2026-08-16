@@ -1,0 +1,22 @@
+:host {
+  display: block;
+  height: 100vh;
+}
+
+.tt-root {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #0c0d10;
+  color: #e7e8ea;
+  font-family: 'Instrument Sans', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.tt-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  gap: 14px;
+  padding: 14px 18px 18px;
+}

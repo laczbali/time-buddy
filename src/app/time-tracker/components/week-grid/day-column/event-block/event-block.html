@@ -1,0 +1,32 @@
+<div
+  data-ev="1"
+  [title]="ev().tip"
+  (pointerdown)="ev().onGrab($event)"
+  class="block"
+  [style.left]="ev().left"
+  [style.width]="ev().width"
+  [style.top]="ev().top"
+  [style.height]="ev().height"
+  [style.z-index]="ev().z"
+  [style.padding]="ev().pad"
+  [style.background]="ev().bg"
+  [style.border-left]="ev().borderWidth + ' ' + ev().borderStyle + ' ' + ev().accent"
+  [style.box-shadow]="ev().shadow"
+  [style.color]="ev().fg"
+  [style.flex-direction]="ev().dir"
+  [style.align-items]="ev().align"
+  [style.gap]="ev().gap"
+>
+  <div class="title-row" [style.flex]="ev().titleFlex">
+    @if (ev().viaTimer) {
+      <app-timer-icon />
+    }
+    <span class="title">{{ ev().title }}</span>
+  </div>
+  <span class="time-label" [style.font-size]="ev().timeSize">{{ ev().timeLabel }}</span>
+  @if (ev().hasNote) {
+    <span class="note-dot"></span>
+  }
+  <div class="grab-start" [style.height]="ev().handleH" (pointerdown)="ev().onGrabStart($event)"></div>
+  <div class="grab-end" [style.height]="ev().handleH" (pointerdown)="ev().onGrabEnd($event)"></div>
+</div>

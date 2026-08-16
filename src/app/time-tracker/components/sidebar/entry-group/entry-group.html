@@ -1,0 +1,32 @@
+<div [style.border-bottom]="isCompact() ? 'none' : '1px solid ' + group().border">
+  <div
+    (click)="group().onToggle()"
+    (keydown.enter)="group().onToggle()"
+    (keydown.space)="group().onToggle()"
+    tabindex="0"
+    role="button"
+    [class]="isCompact() ? 'tt-group-row-compact row' : 'tt-group-row row'"
+  >
+    <span class="accent-bar" [style.background]="group().accent"></span>
+    <span class="caret">{{ group().caret }}</span>
+    <span class="title" [style.color]="group().fg">{{ group().title }}</span>
+    @if (group().hasNote) {
+      <span class="note-dot" [style.background]="group().fg"></span>
+    }
+    <span class="duration" [style.color]="group().durColor">{{ group().dur }}</span>
+  </div>
+  @if (group().open) {
+    <div class="entries">
+      @for (entry of group().entries; track entry.id) {
+        <div (click)="entry.onOpen()" (keydown.enter)="entry.onOpen()" (keydown.space)="entry.onOpen()" tabindex="0" role="button" class="entry">
+          @if (entry.viaTimer) {
+            <app-timer-icon />
+          }
+          <span class="entry-time">{{ entry.time }}</span>
+          <span class="entry-note" [style.color]="entry.noteColor">{{ entry.note }}</span>
+          <span class="entry-dur" [style.color]="entry.durColor">{{ entry.dur }}</span>
+        </div>
+      }
+    </div>
+  }
+</div>

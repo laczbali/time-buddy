@@ -1,0 +1,111 @@
+:host {
+  display: contents;
+}
+
+.column {
+  flex: 1;
+  height: 100%;
+  position: relative;
+  border-radius: 10px;
+  border: 1px solid;
+  overflow: hidden;
+  touch-action: none;
+  cursor: crosshair;
+  user-select: none;
+}
+
+.hover-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(126, 220, 210, 0.45);
+  pointer-events: none;
+  z-index: 20;
+}
+
+.hover-label {
+  position: absolute;
+  left: 4px;
+  top: -14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  color: #9ee2da;
+  background: rgba(12, 13, 16, 0.85);
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+
+.now-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(231, 232, 234, 0.32);
+  pointer-events: none;
+  z-index: 12;
+}
+
+.now-dot {
+  position: absolute;
+  left: 0;
+  top: -2px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(231, 232, 234, 0.55);
+}
+
+.timer-block {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  min-height: 14px;
+  border-radius: 6px;
+  background: rgba(126, 220, 210, 0.13);
+  border: 1px dashed rgba(126, 220, 210, 0.6);
+  box-shadow: 0 0 0 1px #0c0d10;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 3px 6px;
+  pointer-events: none;
+  z-index: 18;
+  overflow: hidden;
+}
+
+.timer-block-title {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #cdeee9;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.timer-block-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: #9ee2da;
+}
+
+.drag-block {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  border-radius: 6px;
+  background: rgba(126, 220, 210, 0.16);
+  border: 1px dashed rgba(126, 220, 210, 0.55);
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  pointer-events: none;
+  z-index: 15;
+}
+
+.drag-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  color: #9ee2da;
+}

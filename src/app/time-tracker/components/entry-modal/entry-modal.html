@@ -1,0 +1,48 @@
+<!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
+<div class="tt-modal-overlay overlay" (click)="closeModal()()">
+  <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
+  <div class="tt-modal-dialog" (click)="stop()($event)">
+    <div class="header-row">
+      <span class="dialog-title">{{ modalTitle() }}</span>
+      <span class="duration-label">{{ draftDuration() }}</span>
+    </div>
+    <input
+      #titleInput
+      [value]="draftTitle()"
+      (input)="onDraftInput()($event)"
+      (keydown)="onDraftKey()($event)"
+      placeholder="Title"
+      class="tt-text-field"
+    />
+    @if (hasRecents()) {
+      <div class="pill-row">
+        @for (r of recents(); track r.title) {
+          <button (click)="r.onPick()" class="tt-pill-btn">{{ r.title }}</button>
+        }
+      </div>
+    }
+    <textarea
+      [value]="draftNote()"
+      (change)="onNoteInput()($event)"
+      placeholder="Notes (optional)"
+      rows="2"
+      class="tt-textarea-field"
+    ></textarea>
+    <div class="time-row">
+      <input type="time" step="300" [value]="draftStart()" (change)="onStartInput()($event)" class="tt-time-field" />
+      <span class="to-label">to</span>
+      <input type="time" step="300" [value]="draftEnd()" (change)="onEndInput()($event)" class="tt-time-field" />
+    </div>
+    <label class="checkbox-row">
+      <input type="checkbox" [checked]="draftExcluded()" (change)="onExcludeToggle()($event)" class="checkbox" />
+      <span>Exclude from total</span>
+    </label>
+    <div class="footer-row">
+      @if (isEditing()) {
+        <button (click)="deleteEntry()()" class="tt-delete-btn">Delete</button>
+      }
+      <button (click)="closeModal()()" class="tt-cancel-btn">Cancel</button>
+      <button (click)="saveDraft()()" class="tt-primary-btn">{{ saveLabel() }}</button>
+    </div>
+  </div>
+</div>

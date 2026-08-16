@@ -1,0 +1,90 @@
+<div class="week-grid">
+  @if (hiddenWeekendCount() > 0) {
+    <div class="weekend-banner-row">
+      <div class="gutter-spacer" [style.width]="gutterW()"></div>
+      <button (click)="revealWeekends()()" class="tt-weekend-banner">
+        <span>{{ hiddenWeekendCount() }} {{ hiddenWeekendCount() === 1 ? 'entry' : 'entries' }} on the hidden weekend days</span>
+        <span class="tt-weekend-banner-sep">·</span>
+        <span class="tt-weekend-banner-action">Show weekends</span>
+      </button>
+    </div>
+  }
+  <div #scrollArea class="scroll-area tt-scroll-area">
+    <div class="scroll-inner">
+      <div class="day-headers">
+        <div class="gutter-spacer" [style.width]="gutterW()"></div>
+        @for (d of days(); track d.key) {
+          <div
+            (click)="d.onSelect()"
+            (keydown.enter)="d.onSelect()"
+            (keydown.space)="d.onSelect()"
+            tabindex="0"
+            role="button"
+            class="day-header"
+            [style.min-width]="colMin()"
+            [style.border-color]="d.headBorder"
+            [style.background]="d.headBg"
+          >
+            <div class="day-header-top">
+              <span class="day-label" [style.color]="d.fg">{{ d.label }}</span>
+              <span class="day-date" [style.color]="d.dim">{{ d.dateNum }}</span>
+            </div>
+            <span class="day-hours" [style.color]="d.dim">{{ d.hours }}</span>
+          </div>
+        }
+      </div>
+
+      @if (hasHiddenBefore()) {
+        <div class="hidden-before-row">
+          <div class="gutter-spacer" [style.width]="gutterW()"></div>
+          @for (d of days(); track d.key) {
+            <div class="hidden-before-cell" [style.min-width]="colMin()">
+              @if (d.hiddenBefore > 0) {
+                <button
+                  (click)="d.onRevealBefore()"
+                  class="tt-overflow-badge"
+                  title="Show entries logged earlier than the visible hours"
+                >
+                  ▲ {{ d.hiddenBefore }}
+                </button>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      <div #gridArea class="grid-area" [style.height]="gridH()">
+        <div class="hour-gutter" [style.width]="gutterW()">
+          @for (h of hours(); track $index) {
+            <div class="hour-slot" [style.height]="pph()">
+              <span class="hour-label">{{ h.label }}</span>
+            </div>
+          }
+        </div>
+
+        @for (d of days(); track d.key) {
+          <app-day-column [day]="d" [colMin]="colMin()" [gridLines]="gridLines()" />
+        }
+      </div>
+
+      @if (hasHiddenAfter()) {
+        <div class="hidden-after-row">
+          <div class="gutter-spacer" [style.width]="gutterW()"></div>
+          @for (d of days(); track d.key) {
+            <div class="hidden-after-cell" [style.min-width]="colMin()">
+              @if (d.hiddenAfter > 0) {
+                <button
+                  (click)="d.onRevealAfter()"
+                  class="tt-overflow-badge"
+                  title="Show entries logged later than the visible hours"
+                >
+                  ▼ {{ d.hiddenAfter }}
+                </button>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</div>
