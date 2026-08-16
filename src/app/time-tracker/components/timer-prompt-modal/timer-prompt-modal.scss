@@ -1,0 +1,33 @@
+:host {
+  display: contents;
+}
+
+.header-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.dialog-title {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.start-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px;
+  color: #7edcd2;
+}
+
+.pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.footer-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 2px;
+}

@@ -1,0 +1,374 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: #0c0d10;
+}
+* {
+  box-sizing: border-box;
+}
+a {
+  color: #8fd7d0;
+}
+a:hover {
+  color: #b6e8e3;
+}
+input,
+textarea {
+  font-family: inherit;
+}
+input[type='time']::-webkit-calendar-picker-indicator {
+  filter: invert(0.7);
+}
+::selection {
+  background: rgba(120, 220, 210, 0.25);
+}
+
+@keyframes ttpulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+
+// Shared Time Tracker interactive-state classes (kept global since Angular
+// scopes component styles per-component and these are shared across siblings).
+.tt-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(6, 7, 9, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 60;
+}
+
+.tt-modal-dialog {
+  width: 100%;
+  max-width: 400px;
+  background: #14161a;
+  border: 1px solid #2a2d35;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.tt-scroll-area {
+  scrollbar-width: thin;
+  scrollbar-color: #2a2d35 transparent;
+}
+.tt-scroll-area::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+.tt-scroll-area::-webkit-scrollbar-track {
+  background: transparent;
+}
+.tt-scroll-area::-webkit-scrollbar-thumb {
+  background-color: #2a2d35;
+  border-radius: 999px;
+  border: 2px solid #0c0d10;
+  background-clip: padding-box;
+}
+.tt-scroll-area::-webkit-scrollbar-thumb:hover {
+  background-color: #3c4049;
+}
+
+.tt-weekend-banner {
+  font: inherit;
+  font-size: 11px;
+  color: #6f747f;
+  cursor: pointer;
+  flex: none;
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  width: auto;
+  max-width: 100%;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  text-align: left;
+}
+.tt-weekend-banner:hover {
+  border-color: #1d1f25;
+  background: #14171b;
+  color: #9aa0ab;
+}
+
+.tt-weekend-banner-sep {
+  color: #3c4049;
+}
+
+.tt-weekend-banner-action {
+  font-weight: 500;
+  color: #7edcd2;
+  white-space: nowrap;
+}
+
+.tt-overflow-badge {
+  font: inherit;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  line-height: 1;
+  color: #9ee2da;
+  background: rgba(126, 220, 210, 0.16);
+  border: 1px solid rgba(126, 220, 210, 0.5);
+  border-radius: 999px;
+  padding: 2px 7px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.tt-overflow-badge:hover {
+  color: #cdeee9;
+  background: rgba(126, 220, 210, 0.28);
+  border-color: rgba(126, 220, 210, 0.75);
+}
+
+.tt-stop-btn {
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 11px;
+  border-radius: 5px;
+  border: 0;
+  background: #7edcd2;
+  color: #0c0d10;
+  cursor: pointer;
+  flex: none;
+}
+.tt-stop-btn:hover {
+  background: #9ee2da;
+}
+
+.tt-discard-btn {
+  font: inherit;
+  font-size: 12px;
+  line-height: 1;
+  width: 22px;
+  height: 24px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: #6f747f;
+  cursor: pointer;
+  flex: none;
+}
+.tt-discard-btn:hover {
+  color: #d98b8b;
+}
+
+.tt-start-timer-btn {
+  font: inherit;
+  font-size: 12.5px;
+  padding: 6px 12px;
+  border-radius: 7px;
+  border: 1px solid #2a2d35;
+  background: #15171b;
+  color: #c9ccd3;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.tt-start-timer-btn:hover {
+  border-color: #3f7d78;
+  color: #fff;
+}
+
+.tt-week-nav-btn {
+  font: inherit;
+  font-size: 13px;
+  line-height: 1;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  background: transparent;
+  color: #c9ccd3;
+  cursor: pointer;
+}
+.tt-week-nav-btn:hover {
+  background: #1e2127;
+  color: #fff;
+}
+
+.tt-today-btn {
+  font: inherit;
+  font-size: 12.5px;
+  padding: 6px 12px;
+  border-radius: 7px;
+  border: 1px solid #2a2d35;
+  background: #15171b;
+  color: #c9ccd3;
+  cursor: pointer;
+}
+.tt-today-btn:hover {
+  border-color: #3c4049;
+  color: #fff;
+}
+
+.tt-settings-btn {
+  font: inherit;
+  font-size: 12.5px;
+  padding: 6px 10px;
+  border-radius: 7px;
+  border: 1px solid #2a2d35;
+  background: #15171b;
+  color: #9aa0ab;
+  cursor: pointer;
+}
+.tt-settings-btn:hover {
+  border-color: #3c4049;
+  color: #fff;
+}
+
+.tt-number-field {
+  width: 76px;
+  font-size: 13px;
+  padding: 7px 9px;
+  border-radius: 8px;
+  border: 1px solid #2a2d35;
+  background: #0e1014;
+  color: #e7e8ea;
+  outline: none;
+  font-family: 'JetBrains Mono', monospace;
+}
+.tt-number-field:focus {
+  border-color: #3f7d78;
+}
+
+.tt-primary-btn {
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid #7edcd2;
+  background: #7edcd2;
+  color: #0c0d10;
+  cursor: pointer;
+}
+.tt-primary-btn:hover {
+  background: #9ee2da;
+}
+
+.tt-text-field {
+  width: 100%;
+  font-size: 14px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #2a2d35;
+  background: #0e1014;
+  color: #e7e8ea;
+  outline: none;
+}
+.tt-text-field:focus {
+  border-color: #3f7d78;
+}
+
+.tt-textarea-field {
+  width: 100%;
+  font-size: 12.5px;
+  line-height: 1.45;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1px solid #2a2d35;
+  background: #0e1014;
+  color: #c9ccd3;
+  outline: none;
+  resize: vertical;
+}
+.tt-textarea-field:focus {
+  border-color: #3f7d78;
+}
+
+.tt-time-field {
+  flex: 1;
+  font-size: 13px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #2a2d35;
+  background: #0e1014;
+  color: #e7e8ea;
+  outline: none;
+  font-family: 'JetBrains Mono', monospace;
+}
+.tt-time-field:focus {
+  border-color: #3f7d78;
+}
+
+.tt-pill-btn {
+  font: inherit;
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid #2a2d35;
+  background: #191c21;
+  color: #c9ccd3;
+  cursor: pointer;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tt-pill-btn:hover {
+  border-color: #3f7d78;
+  color: #fff;
+}
+
+.tt-cancel-btn {
+  font: inherit;
+  font-size: 12.5px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #2a2d35;
+  background: transparent;
+  color: #9aa0ab;
+  cursor: pointer;
+  margin-left: auto;
+}
+.tt-cancel-btn:hover {
+  color: #e7e8ea;
+}
+
+.tt-delete-btn {
+  font: inherit;
+  font-size: 12.5px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #3a2529;
+  background: transparent;
+  color: #d98b8b;
+  cursor: pointer;
+}
+.tt-delete-btn:hover {
+  background: #241a1c;
+  color: #f0a7a7;
+}
+
+.tt-group-row,
+.tt-group-row-compact {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 13px;
+  cursor: pointer;
+}
+.tt-group-row-compact {
+  padding: 9px 13px;
+}
+.tt-group-row:hover,
+.tt-group-row-compact:hover {
+  background: #14171b;
+}

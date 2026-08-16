@@ -1,0 +1,101 @@
+@let v = store.vm();
+
+<div class="tt-root">
+  <app-top-bar
+    [headOffset]="v.headOffset"
+    [weekLabel]="v.weekLabel"
+    [weekRange]="v.weekRange"
+    [timerRunning]="v.timerRunning"
+    [timerTitle]="v.timerTitle"
+    [timerElapsed]="v.timerElapsed"
+    [stopTimer]="v.stopTimer"
+    [discardTimer]="v.discardTimer"
+    [timerIdle]="v.timerIdle"
+    [openTimer]="v.openTimer"
+    [prevWeek]="v.prevWeek"
+    [nextWeek]="v.nextWeek"
+    [goToday]="v.goToday"
+    [openSettings]="v.openSettings"
+  />
+
+  @if (v.settingsOpen) {
+    <app-settings-modal
+      [closeSettings]="v.closeSettings"
+      [stop]="v.stop"
+      [settingStart]="v.settingStart"
+      [setStartHour]="v.setStartHour"
+      [settingEnd]="v.settingEnd"
+      [setEndHour]="v.setEndHour"
+      [settingWeekends]="v.settingWeekends"
+      [setWeekends]="v.setWeekends"
+    />
+  }
+
+  @if (v.timerPromptOpen) {
+    <app-timer-prompt-modal
+      [closeTimerPrompt]="v.closeTimerPrompt"
+      [stop]="v.stop"
+      [timerStartLabel]="v.timerStartLabel"
+      [timerDraft]="v.timerDraft"
+      [onTimerInput]="v.onTimerInput"
+      [onTimerKey]="v.onTimerKey"
+      [hasRecents]="v.hasRecents"
+      [timerRecents]="v.timerRecents"
+      [beginTimer]="v.beginTimer"
+    />
+  }
+
+  <div class="tt-body" [style.flex-direction]="v.bodyDir">
+    <app-week-grid
+      [hiddenWeekendCount]="v.hiddenWeekendCount"
+      [revealWeekends]="v.revealWeekends"
+      [gutterW]="v.gutterW"
+      [days]="v.days"
+      [hours]="v.hours"
+      [gridH]="v.gridH"
+      [pph]="v.pph"
+      [gridLines]="v.gridLines"
+      [colMin]="v.colMin"
+      [hasHiddenBefore]="v.hasHiddenBefore"
+      [hasHiddenAfter]="v.hasHiddenAfter"
+      [reportColumnWidth]="v.reportColumnWidth"
+    />
+
+    <app-sidebar
+      [asideW]="v.asideW"
+      [summaryTitle]="v.summaryTitle"
+      [totalHours]="v.totalHours"
+      [summary]="v.summary"
+      [summaryEmpty]="v.summaryEmpty"
+      [hasExcluded]="v.hasExcluded"
+      [excludedTotal]="v.excludedTotal"
+      [excludedGroups]="v.excludedGroups"
+    />
+  </div>
+
+  @if (v.modalOpen) {
+    <app-entry-modal
+      [closeModal]="v.closeModal"
+      [stop]="v.stop"
+      [modalTitle]="v.modalTitle"
+      [draftDuration]="v.draftDuration"
+      [draftTitle]="v.draftTitle"
+      [onDraftInput]="v.onDraftInput"
+      [onDraftKey]="v.onDraftKey"
+      [hasRecents]="v.hasRecents"
+      [recents]="v.recents"
+      [draftNote]="v.draftNote"
+      [onNoteInput]="v.onNoteInput"
+      [draftStart]="v.draftStart"
+      [onStartInput]="v.onStartInput"
+      [draftEnd]="v.draftEnd"
+      [onEndInput]="v.onEndInput"
+      [draftExcluded]="v.draftExcluded"
+      [onExcludeToggle]="v.onExcludeToggle"
+      [isEditing]="v.isEditing"
+      [deleteEntry]="v.deleteEntry"
+      [saveDraft]="v.saveDraft"
+      [saveLabel]="v.saveLabel"
+    />
+  }
+</div>

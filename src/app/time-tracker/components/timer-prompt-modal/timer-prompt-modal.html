@@ -1,0 +1,29 @@
+<!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
+<div class="tt-modal-overlay" (click)="closeTimerPrompt()()">
+  <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
+  <div class="tt-modal-dialog" (click)="stop()($event)">
+    <div class="header-row">
+      <span class="dialog-title">Start a timer</span>
+      <span class="start-label">{{ timerStartLabel() }}</span>
+    </div>
+    <input
+      #titleInput
+      [value]="timerDraft()"
+      (input)="onTimerInput()($event)"
+      (keydown)="onTimerKey()($event)"
+      placeholder="What are you working on?"
+      class="tt-text-field"
+    />
+    @if (hasRecents()) {
+      <div class="pill-row">
+        @for (r of timerRecents(); track r.title) {
+          <button (click)="r.onPick()" class="tt-pill-btn">{{ r.title }}</button>
+        }
+      </div>
+    }
+    <div class="footer-row">
+      <button (click)="closeTimerPrompt()()" class="tt-cancel-btn">Cancel</button>
+      <button (click)="beginTimer()()" class="tt-primary-btn">Start</button>
+    </div>
+  </div>
+</div>

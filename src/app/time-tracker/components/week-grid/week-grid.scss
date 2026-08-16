@@ -1,0 +1,129 @@
+:host {
+  display: contents;
+}
+
+.week-grid {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.scroll-area {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.scroll-inner {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.day-headers {
+  display: flex;
+  gap: 6px;
+  flex: none;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: #0c0d10;
+  padding-bottom: 4px;
+}
+
+.gutter-spacer {
+  flex: none;
+}
+
+.weekend-banner-row {
+  display: flex;
+  flex: none;
+}
+
+.day-header {
+  flex: 1;
+  cursor: pointer;
+  padding: 7px 7px;
+  border-radius: 8px;
+  border: 1px solid;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  overflow: hidden;
+}
+
+.day-header-top {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.day-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.day-date {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  flex: none;
+  white-space: nowrap;
+}
+
+.day-hours {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  white-space: nowrap;
+  min-height: 13px;
+}
+
+.grid-area {
+  flex: none;
+  display: flex;
+  gap: 6px;
+}
+
+.hour-gutter {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.hour-slot {
+  flex: none;
+  position: relative;
+}
+
+.hour-label {
+  position: absolute;
+  top: -6px;
+  right: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  color: #585d67;
+}
+
+.hidden-before-row,
+.hidden-after-row {
+  display: flex;
+  gap: 6px;
+  flex: none;
+}
+
+.hidden-before-cell,
+.hidden-after-cell {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}

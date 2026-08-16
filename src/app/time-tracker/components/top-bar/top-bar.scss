@@ -1,0 +1,101 @@
+:host {
+  display: contents;
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 18px;
+  border-bottom: 1px solid #1d1f25;
+  flex: none;
+}
+
+.title-group {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+}
+
+.week-label {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.week-range {
+  font-size: 12.5px;
+  color: #6f747f;
+  font-family: 'JetBrains Mono', monospace;
+  white-space: nowrap;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+}
+
+.timer-pill {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 4px 5px 4px 10px;
+  border: 1px solid #3f7d78;
+  border-radius: 7px;
+  background: #111f1d;
+  max-width: 320px;
+  min-width: 0;
+}
+
+.timer-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #7edcd2;
+  flex: none;
+  animation: ttpulse 2s ease-in-out infinite;
+}
+
+.timer-title {
+  font-size: 12.5px;
+  color: #e7e8ea;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.timer-elapsed {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px;
+  color: #7edcd2;
+  flex: none;
+}
+
+.play-icon {
+  font-size: 9px;
+  color: #7edcd2;
+}
+
+.week-nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  border: 1px solid #2a2d35;
+  border-radius: 7px;
+  background: #15171b;
+  overflow: hidden;
+}
+
+.week-nav-label {
+  font-size: 11px;
+  color: #6f747f;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0 2px;
+}

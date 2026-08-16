@@ -1,0 +1,37 @@
+<div
+  class="column"
+  data-day-column="1"
+  [style.min-width]="colMin()"
+  [style.display]="day().display"
+  [style.border-color]="day().bodyBorder"
+  [style.background]="day().bodyBg"
+  [style.background-image]="gridLines()"
+  (pointerdown)="day().onPointerDown($event)"
+  (pointermove)="day().onHover($event)"
+  (pointerleave)="day().onLeave()"
+>
+  @if (day().hover) {
+    <div class="hover-line" [style.top]="day().hoverTop">
+      <span class="hover-label">{{ day().hoverLabel }}</span>
+    </div>
+  }
+  @if (day().showNow) {
+    <div class="now-line" [style.top]="day().nowTop">
+      <span class="now-dot"></span>
+    </div>
+  }
+  @for (ev of day().events; track ev.id) {
+    <app-event-block [ev]="ev" />
+  }
+  @if (day().timerOn) {
+    <div class="timer-block" [style.top]="day().timerTop" [style.height]="day().timerHeight">
+      <span class="timer-block-title">{{ day().timerTitle }}</span>
+      <span class="timer-block-label">{{ day().timerLabel }}</span>
+    </div>
+  }
+  @if (day().drag) {
+    <div class="drag-block" [style.top]="day().dragTop" [style.height]="day().dragHeight">
+      <span class="drag-label">{{ day().dragLabel }}</span>
+    </div>
+  }
+</div>

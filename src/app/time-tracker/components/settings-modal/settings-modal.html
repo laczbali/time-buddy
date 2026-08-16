@@ -1,0 +1,27 @@
+<!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
+<div class="tt-modal-overlay" (click)="closeSettings()()">
+  <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
+  <div class="tt-modal-dialog dialog" (click)="stop()($event)">
+    <span class="dialog-title">Settings</span>
+    <div class="row">
+      <span class="row-label">Day starts at</span>
+      <input
+        type="number"
+        min="0"
+        max="23"
+        [value]="settingStart()"
+        (change)="setStartHour()($event)"
+        class="tt-number-field"
+      />
+    </div>
+    <div class="row">
+      <span class="row-label">Day ends at</span>
+      <input type="number" min="1" max="24" [value]="settingEnd()" (change)="setEndHour()($event)" class="tt-number-field" />
+    </div>
+    <label class="checkbox-row">
+      <input type="checkbox" [checked]="settingWeekends()" (change)="setWeekends()($event)" class="checkbox" />
+      <span>Show weekends</span>
+    </label>
+    <button (click)="closeSettings()()" class="tt-primary-btn done-btn">Done</button>
+  </div>
+</div>

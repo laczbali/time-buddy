@@ -1,0 +1,25 @@
+<div class="sidebar" [style.width]="asideW()">
+  <div class="header">
+    <span class="header-title">{{ summaryTitle() }}</span>
+    <span class="header-total">{{ totalHours() }}</span>
+  </div>
+  <div class="scroll-area tt-scroll-area">
+    @for (group of summary(); track group.title) {
+      <app-entry-group [group]="group" />
+    }
+    @if (summaryEmpty()) {
+      <div class="empty-hint">Nothing logged yet. Drag on a day to add your first entry.</div>
+    }
+    @if (hasExcluded()) {
+      <div class="excluded-section">
+        <div class="excluded-header">
+          <span class="excluded-title">Excluded from total</span>
+          <span class="excluded-total">{{ excludedTotal() }}</span>
+        </div>
+        @for (group of excludedGroups(); track group.title) {
+          <app-entry-group [group]="group" [isCompact]="true" />
+        }
+      </div>
+    }
+  </div>
+</div>

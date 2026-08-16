@@ -1,0 +1,30 @@
+<div class="bar">
+  <div class="title-group" [style.padding-left]="headOffset()">
+    <span class="week-label">{{ weekLabel() }}</span>
+    <span class="week-range">{{ weekRange() }}</span>
+  </div>
+  <div class="actions">
+    @if (timerRunning()) {
+      <div class="timer-pill">
+        <span class="timer-dot"></span>
+        <span class="timer-title">{{ timerTitle() }}</span>
+        <span class="timer-elapsed">{{ timerElapsed() }}</span>
+        <button (click)="stopTimer()()" class="tt-stop-btn">Stop</button>
+        <button (click)="discardTimer()()" title="Discard timer" class="tt-discard-btn">✕</button>
+      </div>
+    }
+    @if (timerIdle()) {
+      <button (click)="openTimer()()" class="tt-start-timer-btn">
+        <span class="play-icon">▶</span>
+        <span>Start timer</span>
+      </button>
+    }
+    <div class="week-nav">
+      <button (click)="prevWeek()()" class="tt-week-nav-btn">‹</button>
+      <span class="week-nav-label">Week</span>
+      <button (click)="nextWeek()()" class="tt-week-nav-btn">›</button>
+    </div>
+    <button (click)="goToday()()" class="tt-today-btn">Today</button>
+    <button (click)="openSettings()()" title="Settings" class="tt-settings-btn">Settings</button>
+  </div>
+</div>
