@@ -147,11 +147,17 @@ export function buildDayEntries(params: DayEntriesParams): DayEntriesVals {
         dir: isTiny ? 'row' : 'column',
         gap: isTiny ? '5px' : '0px',
         align: isTiny ? 'baseline' : 'stretch',
-        pad: isTiny ? '0 4px' : entry.note && entry.note.trim() ? '2px 11px 2px 4px' : '2px 4px',
-        borderWidth: isTiny && entry.note && entry.note.trim() ? '5px' : '2px',
+        pad: isTiny
+          ? entry.note && entry.note.trim()
+            ? '0 9px 0 4px'
+            : '0 4px'
+          : entry.note && entry.note.trim()
+            ? '2px 11px 2px 4px'
+            : '2px 4px',
+        borderWidth: '2px',
         titleFlex: isTiny ? '1 1 auto' : '0 0 auto',
         borderStyle: entry.excluded ? 'dashed' : 'solid',
-        hasNote: !!(entry.note && entry.note.trim()) && !isTiny,
+        hasNote: !!(entry.note && entry.note.trim()),
         z: 1 + laneIndex,
         top,
         height,
