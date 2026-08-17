@@ -34,7 +34,9 @@ export class WeekGrid {
     afterNextRender(() => {
       const measureColumnWidth = () => {
         const grid = this.gridArea()?.nativeElement;
-        const lastColumn = grid?.lastElementChild as HTMLElement | null;
+        // app-day-column's host is `display: contents` (no box of its own), so measure its
+        // rendered `.column` child rather than the host element, which always reports 0 width.
+        const lastColumn = grid?.lastElementChild?.querySelector('.column') as HTMLElement | null;
         this.reportColumnWidth()(lastColumn?.clientWidth || 120);
       };
       addManagedListener(this.destroyRef, window, 'resize', measureColumnWidth);

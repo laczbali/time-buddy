@@ -113,7 +113,7 @@ export function buildDayEntries(params: DayEntriesParams): DayEntriesVals {
       const laneIndex = entry._lane || 0;
       const laneCount = entry._lanes || 1;
       // Lanes shrink to fit side by side down to a minimum width, then overlap (staggering left offsets) once they'd get too narrow.
-      const innerWidth = Math.max(columnWidth - 22, 30);
+      const innerWidth = Math.max(columnWidth - 4, 30);
       const laneWidth = innerWidth / laneCount;
       const lanesFit = laneCount === 1 || laneWidth >= 40;
       const minLaneWidth = Math.min(innerWidth, 40);
