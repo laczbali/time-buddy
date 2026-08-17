@@ -4,3 +4,6 @@
 # Angular preferences
 - Use the Angular CLI where applicable (eg when creating a new service)
 - I don't need unit testing files
+
+# About the app
+- When making changes to how data is stored, do your best to avoid changes that would lead to data loss after a deploy (ie, the strucutre changes in a way that the newly deployed version is incompatible with the data that was stored by the older version). If it can't be avoided, drop a gigantic warning about that.
