@@ -197,8 +197,11 @@ export class TimeTrackerStore {
             this.entriesService.updateEventTiming(entry.id, liveTiming.start, liveTiming.end);
             this.entriesService.persistEvents();
           } else {
-            entryElement.style.top = '';
-            entryElement.style.height = '';
+            // Don't clear the inline top/height here: liveTiming never diverged from the entry's real
+            // timing, so the styles the move handler already wrote are correct. Clearing them left the DOM
+            // out of sync with Angular's style bindings — since the recomputed value matched what Angular
+            // last bound, it skipped rewriting the DOM, pinning the card at its static (start-of-day) position
+            // until a later drag touched the style directly again.
             this.openEntry(this.entriesService.events().find((existingEntry) => existingEntry.id === entry.id) || entry);
           }
         },
