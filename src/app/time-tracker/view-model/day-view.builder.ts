@@ -11,7 +11,7 @@ import {
   sumMinutes,
 } from '../model/utils';
 import type { Drag, Guide, HoverSlot, Timer, TrackedEvent } from '../model/types';
-import type { EventVals } from '../model/view-model';
+import type { DayTimerVals, EventVals } from '../model/view-model';
 
 /** Live gesture/hover signals `buildDayEntries`'s event handlers read fresh at invocation time — never a stale render-time snapshot. */
 export interface DayGestureState {
@@ -187,17 +187,13 @@ export interface DayLiveParams {
   drag: Drag | null;
   hover: HoverSlot | null;
   guide: Guide | null;
-  timer: Timer | null;
+  timers: Timer[];
 }
 
-/** A day column's live overlay state — the hover/drag/now guide lines and the running-timer block, recomputed on every clock tick or gesture pixel. */
+/** A day column's live overlay state — the hover/drag/now guide lines and the running-timer blocks, recomputed on every clock tick or gesture pixel. */
 export interface DayLiveVals {
   key: string;
-  timerOn: boolean;
-  timerTop: string;
-  timerHeight: string;
-  timerTitle: string;
-  timerLabel: string;
+  timers: DayTimerVals[];
   hover: boolean;
   hoverTop: string;
   hoverLabel: string;
@@ -211,36 +207,40 @@ export interface DayLiveVals {
 
 /** Builds one day column's live overlay: the hover/drag guide line, the "now" line, and the running-timer block. Cheap — no entry filtering or lane assignment. */
 export function buildDayLive(params: DayLiveParams): DayLiveVals {
-  const { key, isToday, startHour, endHour, span, slotMinutes, nowMs, nowMinuteOfDay, drag, hover: hoverState, guide, timer: timerState } = params;
+  const { key, isToday, startHour, endHour, span, slotMinutes, nowMs, nowMinuteOfDay, drag, hover: hoverState, guide, timers } = params;
 
   const dragStartSlot = drag ? Math.min(drag.startSlot, drag.endSlot) : 0;
   const dragEndSlot = drag ? Math.max(drag.startSlot, drag.endSlot) : 0;
   const guideMinute = guide ? guide.minuteOfDay : hoverState ? startHour * 60 + hoverState.slotIndex * slotMinutes : null;
 
-  // Position/size the running-timer block, if the timer belongs to this day.
-  let timerTop = '0%';
-  let timerHeight = '0%';
-  let timerLabel = '';
-  if (timerState) {
-    const timerStartDate = new Date(timerState.startedAt);
+  // Position/size each running-timer block for this day, laid out as even-width side-by-side columns (ordered by
+  // start time for a stable left-to-right position as timers start/stop) — concurrent timers are always
+  // open-ended and effectively overlapping, so full overlap-clustering (as used for TrackedEvents) is unneeded.
+  const orderedTimers = timers.slice().sort((a, b) => a.startedAt - b.startedAt);
+  const laneCount = orderedTimers.length;
+  const dayTimers: DayTimerVals[] = orderedTimers.map((timer, index) => {
+    const timerStartDate = new Date(timer.startedAt);
     const nowDate = new Date(nowMs);
     const rawStartMinute = timerStartDate.getHours() * 60 + timerStartDate.getMinutes() + timerStartDate.getSeconds() / 60;
     // Clamp to both edges of the visible window — a ceiling clamp is needed too, since narrowing `endHour`
     // below a running timer's own start would otherwise leave timerStartMinute > timerEndMinute (negative height).
     const timerStartMinute = Math.min(endHour * 60, Math.max(startHour * 60, rawStartMinute));
     const timerEndMinute = Math.min(endHour * 60, Math.max(timerStartMinute, nowDate.getHours() * 60 + nowDate.getMinutes() + nowDate.getSeconds() / 60));
-    timerTop = minuteToPercent(timerStartMinute, startHour, span);
-    timerHeight = minuteToPercent(timerEndMinute - timerStartMinute, 0, span);
-    timerLabel = formatTime(Math.round(timerStartMinute)) + ' – ' + formatElapsed(nowMs - timerState.startedAt);
-  }
+    const laneWidthPct = 100 / laneCount;
+    return {
+      id: timer.id,
+      top: minuteToPercent(timerStartMinute, startHour, span),
+      height: minuteToPercent(timerEndMinute - timerStartMinute, 0, span),
+      left: index * laneWidthPct + '%',
+      width: laneWidthPct + '%',
+      title: timer.title,
+      label: formatTime(Math.round(timerStartMinute)) + ' – ' + formatElapsed(nowMs - timer.startedAt),
+    };
+  });
 
   return {
     key,
-    timerOn: !!timerState,
-    timerTop,
-    timerHeight,
-    timerTitle: timerState ? timerState.title : '',
-    timerLabel,
+    timers: dayTimers,
     hover: guideMinute != null && !drag,
     hoverTop: guideMinute != null ? minuteToPercent(guideMinute, startHour, span) : '0%',
     hoverLabel: guideMinute != null ? formatTime(guideMinute) : '',

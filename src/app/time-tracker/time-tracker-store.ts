@@ -2,7 +2,7 @@ import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core'
 import { orderDragSlots, computeGrabPosition, trackPointerGesture } from './interaction/pointer-drag';
 import { MOBILE_BREAKPOINT, SLOT_MINUTES } from './model/constants';
 import type { Drag, Guide, HoverSlot, TrackedEvent } from './model/types';
-import { addManagedListener, entryBoxTopHeight, parseIsoDate, slotIndexAt, toIsoDate } from './model/utils';
+import { addManagedListener, createEntryId, entryBoxTopHeight, parseIsoDate, slotIndexAt, toIsoDate } from './model/utils';
 import { TimeTrackerEntries } from './services/time-tracker-entries';
 import { TimeTrackerSettings } from './services/time-tracker-settings';
 import { TimeTrackerTimer } from './services/time-tracker-timer';
@@ -34,21 +34,25 @@ export class TimeTrackerStore {
   constructor() {
     addManagedListener(this.destroyRef, window, 'resize', () => this.isMobile.set(window.innerWidth < MOBILE_BREAKPOINT));
 
-    // Drives the "now" line, the running timer's elapsed label, midnight rollover, and auto-finishing an overrunning timer.
+    // Drives the "now" line, each running timer's elapsed label, midnight rollover, and auto-finishing an overrunning timer.
     const tick = () => {
       const now = new Date();
       const nowMinuteOfDay = now.getHours() * 60 + now.getMinutes();
-      const runningTimer = this.timerService.timer();
-      if (runningTimer && this.timerService.hasDayChanged(now)) {
-        // The timer's day has ended — close it out at 24:00 for that day, then seamlessly continue tracking
-        // the same title into the new day, so time worked across midnight isn't silently discarded.
-        this.finishTimer(1440);
-        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-        this.timerService.begin({ title: runningTimer.title, startedAt: startOfToday, day: toIsoDate(now) });
-      } else if (runningTimer && this.timerService.isPastWindowEnd(nowMinuteOfDay)) {
-        this.finishTimer(this.settingsService.endHour() * 60);
+      // Snapshot before mutating — finishTimer()/begin() below change timerService.timers(), so iterating a live
+      // signal read here would risk skipping or double-processing entries mid-loop.
+      const runningTimers = this.timerService.timers();
+      for (const runningTimer of runningTimers) {
+        if (this.timerService.hasDayChanged(runningTimer.id, now)) {
+          // This timer's day has ended — close it out at 24:00 for that day, then seamlessly continue tracking
+          // the same title into the new day under a new id, so time worked across midnight isn't silently discarded.
+          this.finishTimer(runningTimer.id, 1440);
+          const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+          this.timerService.begin({ id: createEntryId(), title: runningTimer.title, startedAt: startOfToday, day: toIsoDate(now) });
+        } else if (this.timerService.isPastWindowEnd(runningTimer.id, nowMinuteOfDay)) {
+          this.finishTimer(runningTimer.id, this.settingsService.endHour() * 60);
+        }
       }
-      if (runningTimer || nowMinuteOfDay !== this.timerService.now()) {
+      if (runningTimers.length || nowMinuteOfDay !== this.timerService.now()) {
         this.timerService.setNow(now.getTime());
         this.today.set(toIsoDate(now));
       }
@@ -95,20 +99,20 @@ export class TimeTrackerStore {
     const dayOfWeek = now.getDay();
     if ((dayOfWeek === 0 || dayOfWeek === 6) && !this.settingsService.weekends()) this.settingsService.setSetting('weekends', true);
     this.settingsService.ensureWindow(now);
-    this.timerService.begin({ title: trimmedTitle, startedAt: now.getTime(), day: toIsoDate(now) });
+    this.timerService.begin({ id: createEntryId(), title: trimmedTitle, startedAt: now.getTime(), day: toIsoDate(now) });
     this.selected.set(toIsoDate(now));
   }
 
-  /** Turns the running timer into an entry. No-ops if no timer is running. */
-  finishTimer(endAtMinute?: number): void {
-    const range = this.timerService.computeFinishRange(endAtMinute);
+  /** Turns the timer `timerId` into an entry. No-ops if it isn't running. */
+  finishTimer(timerId: string, endAtMinute?: number): void {
+    const range = this.timerService.computeFinishRange(timerId, endAtMinute);
     if (!range) return;
     this.entriesService.addTimedEvent(range);
-    this.timerService.clear();
+    this.timerService.clear(timerId);
   }
 
-  discardTimer(): void {
-    this.timerService.clear();
+  discardTimer(timerId: string): void {
+    this.timerService.clear(timerId);
   }
 
   /** Selects an entry's day and opens it in the edit modal. */

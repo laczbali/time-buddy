@@ -58,8 +58,8 @@
 
 .timer-block {
   position: absolute;
-  left: 4px;
-  right: 4px;
+  margin: 0 2px;
+  box-sizing: border-box;
   min-height: 14px;
   border-radius: 6px;
   background: rgba(126, 220, 210, 0.13);

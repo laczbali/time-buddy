@@ -23,10 +23,10 @@
   @for (ev of day().events; track ev.id) {
     <app-event-block [ev]="ev" />
   }
-  @if (day().timerOn) {
-    <div class="timer-block" [style.top]="day().timerTop" [style.height]="day().timerHeight">
-      <span class="timer-block-title">{{ day().timerTitle }}</span>
-      <span class="timer-block-label">{{ day().timerLabel }}</span>
+  @for (t of day().timers; track t.id) {
+    <div class="timer-block" [style.top]="t.top" [style.height]="t.height" [style.left]="t.left" [style.width]="t.width">
+      <span class="timer-block-title">{{ t.title }}</span>
+      <span class="timer-block-label">{{ t.label }}</span>
     </div>
   }
   @if (day().drag) {

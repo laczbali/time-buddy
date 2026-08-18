@@ -30,13 +30,20 @@ export interface EventVals {
   onGrabEnd: (event: PointerEvent) => void;
 }
 
-/** Render state for one day column: header colors, guide lines, the running-timer block, and its entries. */
+/** One running timer's positioned block within a day column's live overlay. */
+export interface DayTimerVals {
+  id: string;
+  top: string;
+  height: string;
+  left: string;
+  width: string;
+  title: string;
+  label: string;
+}
+
+/** Render state for one day column: header colors, guide lines, the running-timer blocks, and its entries. */
 export interface DayVals {
-  timerOn: boolean;
-  timerTop: string;
-  timerHeight: string;
-  timerTitle: string;
-  timerLabel: string;
+  timers: DayTimerVals[];
   key: string;
   display: string;
   label: string;
@@ -96,6 +103,15 @@ export interface GroupVals {
   entries: EntryVals[];
 }
 
+/** One running timer's pill state, rendered in the top bar. */
+export interface TimerPillVals {
+  id: string;
+  title: string;
+  elapsed: string;
+  stop: () => void;
+  discard: () => void;
+}
+
 /** One recently-used title shown as a quick-pick pill (in the entry modal or the timer prompt). */
 export interface RecentVals {
   title: string;
@@ -117,12 +133,7 @@ export interface ViewModel {
   totalHours: string;
   summaryTitle: string;
   goToday: () => void;
-  timerRunning: boolean;
-  timerIdle: boolean;
-  timerTitle: string;
-  timerElapsed: string;
-  stopTimer: () => void;
-  discardTimer: () => void;
+  timers: TimerPillVals[];
   timerPromptOpen: boolean;
   timerDraft: string;
   timerStartLabel: string;

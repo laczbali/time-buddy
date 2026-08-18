@@ -19,7 +19,7 @@ export class TimeTrackerTimer {
   private readonly storage = inject(TimeTrackerStorage);
   private readonly settings = inject(TimeTrackerSettings);
 
-  readonly timer = signal<Timer | null>(null);
+  readonly timers = signal<Timer[]>([]);
   readonly nowMs = signal(Date.now());
   /** Minute-of-day derived from `nowMs` — kept as a single source of truth instead of a second signal set alongside it. */
   readonly now = computed(() => {
@@ -30,7 +30,7 @@ export class TimeTrackerTimer {
   readonly draftTitle = signal('');
 
   constructor() {
-    this.timer.set(this.storage.loadTimer());
+    this.timers.set(this.storage.loadTimers());
   }
 
   /** Updates the live clock, called once a second by the store's tick loop. */
@@ -38,37 +38,38 @@ export class TimeTrackerTimer {
     this.nowMs.set(epochMs);
   }
 
-  /** Whether the running timer's start day differs from `nowDate`'s — i.e. it has crossed midnight. */
-  hasDayChanged(nowDate: Date): boolean {
-    const currentTimer = this.timer();
-    return !!currentTimer && toIsoDate(nowDate) !== toIsoDate(new Date(currentTimer.startedAt));
+  /** Whether the timer `timerId`'s start day differs from `nowDate`'s — i.e. it has crossed midnight. False if it isn't running. */
+  hasDayChanged(timerId: string, nowDate: Date): boolean {
+    const timer = this.timers().find((t) => t.id === timerId);
+    return !!timer && toIsoDate(nowDate) !== toIsoDate(new Date(timer.startedAt));
   }
 
-  /** Whether the running timer has run past the end of the visible window, on the same day it started. */
-  isPastWindowEnd(nowMinuteOfDay: number): boolean {
-    return !!this.timer() && nowMinuteOfDay >= this.settings.endHour() * 60;
+  /** Whether the timer `timerId` has run past the end of the visible window, on the same day it started. */
+  isPastWindowEnd(timerId: string, nowMinuteOfDay: number): boolean {
+    return this.timers().some((t) => t.id === timerId) && nowMinuteOfDay >= this.settings.endHour() * 60;
   }
 
-  /** Starts a new timer and resets the start-timer prompt. No-ops if a timer is already running, so a stray call
-   *  can never overwrite one and silently discard whatever time it had already accrued. */
+  /** Starts a new timer, appending it to the running set — any number of timers can run concurrently. */
   begin(timer: Timer): void {
-    if (this.timer()) return;
-    this.timer.set(timer);
-    this.storage.saveTimer(timer);
+    const next = this.timers().concat([timer]);
+    this.timers.set(next);
+    this.storage.saveTimers(next);
     this.promptOpen.set(false);
     this.draftTitle.set('');
-    this.nowMs.set(timer.startedAt);
+    // Only ever advances the clock, never rewinds it: the store's midnight-rollover path re-begins a timer with
+    // startedAt pinned to midnight (a past instant), which must not yank other running timers' elapsed display backwards.
+    if (timer.startedAt > this.nowMs()) this.nowMs.set(timer.startedAt);
   }
 
   /**
-   * Computes the snapped start/end minutes the running timer should become an entry at, or null if no timer is
+   * Computes the snapped start/end minutes the timer `timerId` should become an entry at, or null if it isn't
    * running. Deliberately never clamps against the *visible* settings window — that's just the render range, and
    * entries are allowed to exist outside it (see `revealBefore`/`revealAfter`). Only clamps to the timer's own day:
    * if `now` has rolled past midnight relative to the timer's start, the entry is clipped at 24:00 for that day
    * rather than wrapping into a bogus, much-shorter range.
    */
-  computeFinishRange(endAtMinute?: number): TimerFinishRange | null {
-    const currentTimer = this.timer();
+  computeFinishRange(timerId: string, endAtMinute?: number): TimerFinishRange | null {
+    const currentTimer = this.timers().find((t) => t.id === timerId);
     if (!currentTimer) return null;
     const snap = (minutes: number) => snapToSlot(minutes, SLOT_MINUTES);
     const timerStartDate = new Date(currentTimer.startedAt);
@@ -81,10 +82,11 @@ export class TimeTrackerTimer {
     return { day: currentTimer.day, title: currentTimer.title, start: entryStart, end: entryEnd };
   }
 
-  /** Clears the timer, used both when finishing it into an entry and when discarding it outright. */
-  clear(): void {
-    this.timer.set(null);
-    this.storage.saveTimer(null);
+  /** Removes one timer by id, used both when finishing it into an entry and when discarding it outright. Other running timers are untouched. */
+  clear(timerId: string): void {
+    const next = this.timers().filter((t) => t.id !== timerId);
+    this.timers.set(next);
+    this.storage.saveTimers(next);
   }
 
   openPrompt(): void {

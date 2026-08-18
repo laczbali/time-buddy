@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { EVENTS_STORAGE_KEY, RECENTS_STORAGE_KEY, SETTINGS_STORAGE_KEY, TIMER_STORAGE_KEY } from '../model/constants';
+import { EVENTS_STORAGE_KEY, RECENTS_STORAGE_KEY, SETTINGS_STORAGE_KEY, TIMER_STORAGE_KEY, TIMERS_STORAGE_KEY } from '../model/constants';
 import type { Settings, Timer, TrackedEvent } from '../model/types';
+import { createEntryId } from '../model/utils';
 
 function readJson<T>(key: string, fallback: T): T {
   try {
@@ -25,6 +26,12 @@ function removeStored(key: string): void {
   } catch {
     /* ignore quota errors */
   }
+}
+
+/** Guards against a stored entry that isn't shaped like a `Timer` (corrupt data, or missing the `id` added when multi-timer support landed). */
+function isTimer(value: unknown): value is Timer {
+  const timer = value as Partial<Timer> | null;
+  return !!timer && typeof timer.id === 'string' && typeof timer.title === 'string' && typeof timer.startedAt === 'number' && typeof timer.day === 'string';
 }
 
 /** Guards against a stored entry that isn't shaped like a `TrackedEvent` (corrupt data, or an old/incompatible schema). */
@@ -61,10 +68,23 @@ export class TimeTrackerStorage {
     return settings && typeof settings === 'object' && !Array.isArray(settings) ? settings : null;
   }
 
-  /** Reads a saved in-progress timer, discarding it if it's missing required fields (e.g. corrupt or from an old format). */
-  loadTimer(): Timer | null {
-    const timer = readJson<Timer | null>(TIMER_STORAGE_KEY, null);
-    return timer && timer.title && timer.startedAt && timer.day ? timer : null;
+  /**
+   * Reads the saved list of in-progress timers. If the new key holds nothing, falls back to migrating a legacy
+   * single-timer object stored under the old `tt.timer.v1` key (from before multi-timer support) into the new
+   * array format exactly once, so a timer a user had running at redeploy time isn't silently discarded.
+   */
+  loadTimers(): Timer[] {
+    const stored = readJson<unknown>(TIMERS_STORAGE_KEY, null);
+    if (Array.isArray(stored)) return stored.filter(isTimer);
+
+    const legacy = readJson<Partial<Timer> | null>(TIMER_STORAGE_KEY, null);
+    if (legacy && typeof legacy.title === 'string' && typeof legacy.startedAt === 'number' && typeof legacy.day === 'string') {
+      const migrated: Timer[] = [{ id: createEntryId(), title: legacy.title, startedAt: legacy.startedAt, day: legacy.day }];
+      writeJson(TIMERS_STORAGE_KEY, migrated);
+      removeStored(TIMER_STORAGE_KEY);
+      return migrated;
+    }
+    return [];
   }
 
   saveEvents(events: TrackedEvent[]): void {
@@ -79,9 +99,9 @@ export class TimeTrackerStorage {
     writeJson(SETTINGS_STORAGE_KEY, settings);
   }
 
-  /** Persists the in-progress timer, or clears it from storage when passed null (timer discarded/finished). */
-  saveTimer(timer: Timer | null): void {
-    if (timer) writeJson(TIMER_STORAGE_KEY, timer);
-    else removeStored(TIMER_STORAGE_KEY);
+  /** Persists the running timers, or clears storage entirely once none are left. */
+  saveTimers(timers: Timer[]): void {
+    if (timers.length) writeJson(TIMERS_STORAGE_KEY, timers);
+    else removeStored(TIMERS_STORAGE_KEY);
   }
 }

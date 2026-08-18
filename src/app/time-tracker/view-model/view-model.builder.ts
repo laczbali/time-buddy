@@ -2,7 +2,7 @@ import type { WritableSignal } from '@angular/core';
 import { END_HOUR_DEFAULT, PPH, SLOT_MINUTES, START_HOUR_DEFAULT } from '../model/constants';
 import type { Drag, Guide, HoverSlot, TrackedEvent } from '../model/types';
 import { formatDuration, formatElapsed, formatTime, parseTimeToMinutes, parseIsoDate, sumMinutes, toIsoDate } from '../model/utils';
-import type { GroupVals, HourVals, RecentVals, ViewModel } from '../model/view-model';
+import type { GroupVals, HourVals, RecentVals, TimerPillVals, ViewModel } from '../model/view-model';
 import type { TimeTrackerEntries } from '../services/time-tracker-entries';
 import type { TimeTrackerSettings } from '../services/time-tracker-settings';
 import type { TimeTrackerTimer } from '../services/time-tracker-timer';
@@ -26,8 +26,8 @@ export interface NavContext {
   makeGrab(entry: TrackedEvent, mode: 'move' | 'start' | 'end'): (event: PointerEvent) => void;
   openEntry(entry: TrackedEvent): void;
   beginTimer(title: string): void;
-  finishTimer(): void;
-  discardTimer(): void;
+  finishTimer(timerId: string): void;
+  discardTimer(timerId: string): void;
 }
 
 /**
@@ -99,12 +99,7 @@ export interface EntriesViewModel {
 
 /** The subset of the flat ViewModel that changes on every clock tick or drag/hover/guide pixel — kept cheap on purpose. */
 export interface LiveViewModel {
-  timerRunning: boolean;
-  timerIdle: boolean;
-  timerTitle: string;
-  timerElapsed: string;
-  stopTimer: () => void;
-  discardTimer: () => void;
+  timers: TimerPillVals[];
   timerPromptOpen: boolean;
   timerDraft: string;
   timerStartLabel: string;
@@ -311,7 +306,7 @@ export function buildLiveViewModel(nav: NavContext, settings: TimeTrackerSetting
   const dragState = nav.drag();
   const hoverState = nav.hover();
   const guideState = nav.guide();
-  const timerState = timer.timer();
+  const timerState = timer.timers();
   const nowMs = timer.nowMs();
   const nowMinuteOfDay = timer.now();
 
@@ -329,17 +324,20 @@ export function buildLiveViewModel(nav: NavContext, settings: TimeTrackerSetting
       drag: dragState && dragState.key === key ? dragState : null,
       guide: guideState && guideState.key === key ? guideState : null,
       hover: !guideState && hoverState && hoverState.key === key ? hoverState : null,
-      timer: timerState && timerState.day === key ? timerState : null,
+      timers: timerState.filter((t) => t.day === key),
     });
   });
 
   return {
-    timerRunning: !!timerState,
-    timerIdle: !timerState,
-    timerTitle: timerState ? timerState.title : '',
-    timerElapsed: timerState ? formatElapsed(nowMs - timerState.startedAt) : '',
-    stopTimer: () => nav.finishTimer(),
-    discardTimer: () => nav.discardTimer(),
+    timers: timerState.map(
+      (t): TimerPillVals => ({
+        id: t.id,
+        title: t.title,
+        elapsed: formatElapsed(nowMs - t.startedAt),
+        stop: () => nav.finishTimer(t.id),
+        discard: () => nav.discardTimer(t.id),
+      }),
+    ),
     timerPromptOpen: timer.promptOpen(),
     timerDraft: timer.draftTitle(),
     timerStartLabel: nowMinuteOfDay != null ? 'from ' + formatTime(nowMinuteOfDay) : '',

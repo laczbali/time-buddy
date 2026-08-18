@@ -14,6 +14,7 @@ export interface TrackedEvent {
 }
 
 export interface Timer {
+  id: string;
   title: string;
   startedAt: number;
   day: string;

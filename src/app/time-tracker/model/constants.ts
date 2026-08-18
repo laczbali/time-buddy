@@ -7,4 +7,6 @@ export const MOBILE_BREAKPOINT = 820;
 export const EVENTS_STORAGE_KEY = 'tt.events.v1';
 export const RECENTS_STORAGE_KEY = 'tt.recents.v1';
 export const SETTINGS_STORAGE_KEY = 'tt.settings.v1';
+/** Legacy single-timer storage key, kept only so `loadTimers()` can migrate an in-flight timer saved before multi-timer support. */
 export const TIMER_STORAGE_KEY = 'tt.timer.v1';
+export const TIMERS_STORAGE_KEY = 'tt.timers.v2';
